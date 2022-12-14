@@ -9,20 +9,22 @@ namespace tests;
 public class CubicSplineTests : BaseTest, IClassFixture<ConfigurationFixture>
 #pragma warning restore xUnit1033
 {
+    #region Tests
+
     [Fact]
-    public void test_cubic_spline_stuff()
+    public void test_cubic_spline()
     {
         var xCoords = new double[] { 1, 2, 3, 4, 5, 6, 7, 8 };
         var yCoords = new double[] { 10, 30, 50, -40, -60, 0, 10, 20 };
         var naturalSpline = CubicSpline.InterpolateNatural(xCoords, yCoords);
 
         //
-        //  endpoints have f''(x) = 0
+        //  endpoints have f''(x) = 0 by definition
         Assert.Equal(0.0, naturalSpline.Differentiate2(1), 4);
         Assert.Equal(0.0, naturalSpline.Differentiate2(8), 4);
 
         //
-        //  obtain local extrema
+        //  obtain local extrema (f'(x) = 0)
         var criticalPoints = naturalSpline.StationaryPoints();
         Assert.True(criticalPoints.Length > 0);
         foreach (var criticalPoint in criticalPoints)
@@ -34,7 +36,15 @@ public class CubicSplineTests : BaseTest, IClassFixture<ConfigurationFixture>
                 , naturalSpline.Differentiate(criticalPoint)
                 , naturalSpline.Differentiate2(criticalPoint));
         }
+
+        //
+        //  interpolate outside of the spline (extrapolation)
+        const int outside = 15;
+        var extrap = naturalSpline.Interpolate(outside);
+        Log.Logger.Information("Point {x} extrapolates to value {y}", outside, extrap);
     }
+
+    #endregion
 
     #region Constructor
 
